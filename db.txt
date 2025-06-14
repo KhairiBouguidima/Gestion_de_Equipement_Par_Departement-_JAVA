@@ -1,0 +1,121 @@
+-- Create database
+CREATE DATABASE newproject;
+USE newproject;
+
+-- Create tables
+CREATE TABLE dept (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nomdept VARCHAR(100) NOT NULL,
+    nbLabo INT,
+    idAdmin INT
+);
+
+CREATE TABLE Labo (
+    idLabo INT AUTO_INCREMENT PRIMARY KEY,
+    nomLabo VARCHAR(100) NOT NULL,
+    nbEquipement INT,
+    idDept INT,
+    FOREIGN KEY (idDept) REFERENCES dept(id)
+);
+
+CREATE TABLE Admin (
+    idAdmin INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(100),
+    idDept INT,
+    password INT,
+    FOREIGN KEY (idDept) REFERENCES dept(id)
+);
+
+CREATE TABLE employe (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(100) NOT NULL UNIQUE,
+    idLabo INT NOT NULL,
+    idAdmin INT,
+    FOREIGN KEY (idLabo) REFERENCES Labo(idLabo) ON DELETE CASCADE,
+    FOREIGN KEY (idAdmin) REFERENCES Admin(idAdmin) ON DELETE SET NULL
+);
+
+ALTER TABLE employe ADD email VARCHAR(100);
+
+CREATE TABLE technicien (
+    id_tech INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    specialite VARCHAR(100),
+    disponibilite BOOLEAN DEFAULT TRUE,
+    idAdmin INT,
+    FOREIGN KEY (idAdmin) REFERENCES admin(idAdmin)
+);
+
+CREATE TABLE equipement (
+    numero_serie VARCHAR(50) PRIMARY KEY,
+    model VARCHAR(50),
+    marque VARCHAR(50),
+    description VARCHAR(100),
+    dateAcqui DATE,
+    dateFinGarantie DATE,
+    etat ENUM('neuf','bon','moyen','mauvais','hors_service') DEFAULT 'neuf',
+    idAdmin INT NULL,
+    idEmp INT NULL,
+    FOREIGN KEY (idEmp) REFERENCES employe(id),
+    FOREIGN KEY (idAdmin) REFERENCES Admin(idAdmin)
+);
+
+CREATE TABLE demande (
+    idDem INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(100),
+    `desc` TEXT NOT NULL,
+    idEmp INT,
+    idEquip VARCHAR(50),
+    idLabo INT,
+    dateDem DATE,
+    typeDem ENUM('reservation', 'maintenance'),
+    urgence ENUM('faible', 'moyenne', 'haute', 'critique') DEFAULT 'moyenne',
+    statut ENUM('en attente', 'approuvée', 'rejetée') DEFAULT 'en attente',
+    FOREIGN KEY (idEmp) REFERENCES employe(id),
+    FOREIGN KEY (idEquip) REFERENCES equipement(numero_serie),
+    FOREIGN KEY (idLabo) REFERENCES labo(idLabo)
+);
+
+CREATE TABLE affect (
+    idAffect INT AUTO_INCREMENT PRIMARY KEY,
+    idEmp INT,
+    idAdmin INT,
+    status ENUM('en cours','refuse','accept') DEFAULT 'en cours',
+    FOREIGN KEY (idEmp) REFERENCES employe(id),
+    FOREIGN KEY (idAdmin) REFERENCES Admin(idAdmin)
+);
+
+ALTER TABLE affect 
+ADD COLUMN idTech INT,
+ADD FOREIGN KEY (idTech) REFERENCES technicien(id_tech);
+
+CREATE TABLE maintenance (
+    idMaint INT AUTO_INCREMENT PRIMARY KEY,
+    idAffect INT,
+    idEquip VARCHAR(50),
+    dateDebut DATE,
+    dateFin DATE,
+    typeMaint ENUM('preventive', 'corrective', 'predictive') NOT NULL,
+    resultat TEXT,
+    cout DECIMAL(10,2),
+    FOREIGN KEY (idAffect) REFERENCES affect(idAffect),
+    FOREIGN KEY (idEquip) REFERENCES equipement(numero_serie)
+);
+
+-- Insert sample data
+INSERT INTO dept (id, nomDept) VALUES
+(1, 'Computer Science'),
+(2, 'Electrical Engineering'),
+(3, 'Mechanical Engineering');
+
+INSERT INTO Labo (idLabo, nomLabo, nbEquipement, idDept) VALUES
+(NULL, 'Computer Lab', 20, 1),
+(NULL, 'Electronics Lab', 15, 2),
+(NULL, 'Robotics Lab', 10, 3);
+
+INSERT INTO Admin (idAdmin, username, idDept, password) VALUES
+(NULL, 'admin1', 1, 963369),
+(NULL, 'admin2', 2, 123321),
+(NULL, 'admin3', 3, 147741);
