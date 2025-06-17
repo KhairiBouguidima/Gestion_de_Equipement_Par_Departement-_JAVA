@@ -5,12 +5,15 @@
 package admin;
 
 import admin.Dao.AdminDAO;
+import admin.Dao.DeptDAO;
 import admin.Dao.EquipementDAO;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JTextPane;
+import java.sql.*;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -21,23 +24,53 @@ public class dashbord extends javax.swing.JFrame {
     /**
      * Creates new form dashbord
      */
+    
     public dashbord()  {
         initComponents();
+        try {
+            // Parse the connection values (you must have them available here)
+            int data1 = Integer.parseInt(connection.idadmin);  // e.g., "1"
+            int data2 = Integer.parseInt(connection.iddept);   // e.g., "3"
+System.out.println(data1);
+            // Get department info from DAO
+            Map<String, Object> dept = DeptDAO.getDeptById(data2);
+
+            if (dept != null) {
+                String nomDept = (String) dept.get("nomDept");
+                int nbLabo = (int) dept.get("nbLabo");
+                int idAdmin = (int) dept.get("idAdmin");
+
+                jTextPane1.setText("Name Departement : " + nomDept );
+            } else {
+                jTextPane1.setText("No department found for ID: " + data2);
+            }
+        } catch (NumberFormatException e) {
+            jTextPane1.setText("Invalid ID format");
+        } catch (SQLException e) {
+            jTextPane1.setText("Database error: " + e.getMessage());
+        }
         
-       try {
-            Map<String, Integer> counts = EquipementDAO.countEquipByEtatType();
-            JTextPane[] panes = {jTextPane1, jTextPane2, jTextPane3, jTextPane4, jTextPane5, jTextPane6};
-            
-            int i = 0;
-            for (Map.Entry<String, Integer> entry : counts.entrySet()) {
-                if (i < panes.length + 1) {                   
-                    panes[i].setText(" hello ");
-                    i++;
+        jTextPane2.setText("Name Admin: "+connection.user);
+        jTextPane3.setText("id Admin: "+connection.idadmin);
+        
+        try {
+            Map<String, Integer> stats = EquipementDAO.countEquipByEtatType();
+            if (stats.isEmpty()) {
+                jTextPane4.setText("No equipment data found.");
+            } else {
+                for (Map.Entry<String, Integer> entry : stats.entrySet()) {
+                    String etat = entry.getKey();
+                    int count = entry.getValue();
+                    jTextPane4.setText("État: " + etat + " → Nombre: " + count);
                 }
-            
-    }}  catch (SQLException ex) {
-            Logger.getLogger(dashbord.class.getName()).log(Level.SEVERE, null, ex);
-        }}
+            }
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Database error: " + e.getMessage());
+        }
+
+}
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -266,6 +299,7 @@ public class dashbord extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
+        jButton6.setText("Exit");
         jButton6.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton6ActionPerformed(evt);
@@ -295,12 +329,11 @@ public class dashbord extends javax.swing.JFrame {
                                 .addGap(0, 0, Short.MAX_VALUE))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                 .addGap(0, 0, Short.MAX_VALUE)
-                                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jButton6)))
                 .addContainerGap())
-            .addGroup(layout.createSequentialGroup()
-                .addGap(197, 197, 197)
-                .addComponent(jButton6)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -356,14 +389,7 @@ public class dashbord extends javax.swing.JFrame {
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
         // TODO add your handling code here:
-         try {
-    Map<String, Integer> counts = EquipementDAO.countEquipByEtatType();
-    for (Map.Entry<String, Integer> entry : counts.entrySet()) {
-        System.out.println("State: " + entry.getKey() + ", Count: " + entry.getValue());
-    }
-} catch (SQLException ex) {
-    ex.printStackTrace();
-}
+System.exit(1);
     }//GEN-LAST:event_jButton6ActionPerformed
 
     /**

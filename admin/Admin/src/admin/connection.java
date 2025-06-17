@@ -18,12 +18,15 @@ import javax.swing.JOptionPane;
  * @author Admin
  */
 public class connection extends javax.swing.JFrame {
-
+public static String idadmin ;
+public static String iddept ;
+public static String user ;
     /**
      * Creates new form connection
      */
     public connection() {
         initComponents();
+        
     }
 
     /**
@@ -134,7 +137,6 @@ public class connection extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
- 
      try {
     String username = jTextField1.getText().trim(); // Trim whitespace
     char[] pass = jPasswordField1.getPassword();
@@ -142,7 +144,9 @@ public class connection extends javax.swing.JFrame {
     Arrays.fill(pass, '\0'); // Securely clear password from memory
 
     Map<String, String> admin = AdminDAO.getAdminByUsernameOrEmail(username);
-    
+    idadmin = admin.get("idAdmin");
+    iddept = admin.get("idDept");
+    user = admin.get("username");
     if (admin == null) {
         // Username not found in DB
         JOptionPane.showMessageDialog(
@@ -180,6 +184,7 @@ public class connection extends javax.swing.JFrame {
         "Error", 
         JOptionPane.ERROR_MESSAGE
     );
+    
 }
     }//GEN-LAST:event_jButton1ActionPerformed
 

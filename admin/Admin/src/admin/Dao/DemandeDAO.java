@@ -64,6 +64,31 @@ public class DemandeDAO {
         return null;
     }
     
+    public static Map<String, Object> getDemandeBystatus(String status) throws SQLException {
+        String sql = "SELECT * FROM demande WHERE idDem = ?";
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, status);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    Map<String, Object> demande = new HashMap<>();
+                    demande.put("idDem", rs.getInt("idDem"));
+                    demande.put("title", rs.getString("title"));
+                    demande.put("desc", rs.getString("desc"));
+                    demande.put("idEmp", rs.getInt("idEmp"));
+                    demande.put("idEquip", rs.getString("idEquip"));
+                    demande.put("idLabo", rs.getInt("idLabo"));
+                    demande.put("dateDem", rs.getDate("dateDem"));
+                    demande.put("typeDem", rs.getString("typeDem"));
+                    demande.put("urgence", rs.getString("urgence"));
+                    demande.put("statut", rs.getString("statut"));
+                    return demande;
+                }
+            }
+        }
+        return null;
+    }
+    
     public static void updateDemande(int idDem, String title, String desc, int idEmp, String idEquip,int idLabo, Date dateDem, String typeDem,String urgence, String statut) throws SQLException {
         String sql = "UPDATE demande SET title = ?, desc = ?, idEmp = ?, idEquip = ?, idLabo = ?, dateDem = ?, typeDem = ?, urgence = ?, statut = ? WHERE idDem = ?";
         try (Connection conn = DBUtil.getConnection();

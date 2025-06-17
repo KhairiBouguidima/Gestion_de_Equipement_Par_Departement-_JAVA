@@ -85,7 +85,28 @@ CREATE TABLE affect (
     status ENUM('en cours','refuse','accept') DEFAULT 'en cours',
     FOREIGN KEY (idEmp) REFERENCES employe(id),
     FOREIGN KEY (idAdmin) REFERENCES Admin(idAdmin)
-);
+
+); 
+
+CREATE TABLE affect (
+    ->     idAffect INT AUTO_INCREMENT PRIMARY KEY,
+    ->     idEmp INT,
+    ->     idAdmin INT,
+    ->     status ENUM('en cours', 'refuse', 'accept') DEFAULT 'en cours',
+    ->     idTech INT,
+    ->     idMaint INT NULL,
+    ->     FOREIGN KEY (idEmp) REFERENCES employe(id),
+    ->     FOREIGN KEY (idAdmin) REFERENCES Admin(idAdmin),
+    ->     FOREIGN KEY (idTech) REFERENCES technicien(id_tech),
+    ->     FOREIGN KEY (idMaint) REFERENCES maintenance(idMaint) ON DELETE SET NULL
+    -> );
+
+
+ ALTER TABLE affect
+    -> ADD COLUMN idDemande INT NULL,
+    -> ADD CONSTRAINT fk_affect_demande
+    -> FOREIGN KEY (idDemande) REFERENCES demande(idDem)
+    -> ON DELETE SET NULL;
 
 ALTER TABLE affect 
 ADD COLUMN idTech INT,
