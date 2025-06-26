@@ -57,6 +57,35 @@ public class AffectDAO {
         return null;
     }
     
+public static String getAffectByIdMaint(int idMaint) throws SQLException {
+    String sql = "SELECT * FROM affect " +
+                 "WHERE idMaint = ?";
+
+    try (Connection conn = DBUtil.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+        stmt.setInt(1, idMaint);
+
+        try (ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                int idAffect = rs.getInt("idAffect");
+                int idEmp = rs.getInt("idEmp");
+                int idAdmin = rs.getInt("idAdmin");
+                String status = rs.getString("status");
+                Object idTech = rs.getObject("idTech"); // can be null
+
+                return " | Employé: " + idEmp +
+                       " | Statut: " + status +
+                       " | Technicien: " + (idTech != null ? idTech.toString() : "Non assigné");
+            }
+        }
+    }
+
+    return "Affectation introuvable pour maintenance ID: " + idMaint;
+}
+
+
+    
     public static void updateAffect(int idAffect, int idEmp, int idAdmin, String status, Integer idTech) throws SQLException {
         String sql = "UPDATE affect SET idEmp = ?, idAdmin = ?, status = ?, idTech = ? WHERE idAffect = ?";
         try (Connection conn = DBUtil.getConnection();

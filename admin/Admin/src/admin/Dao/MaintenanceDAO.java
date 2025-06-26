@@ -61,6 +61,60 @@ public class MaintenanceDAO {
         return null;
     }
     
+    public static List<Map<String, Object>> getMaintenancesByDateDebut(Date dateDebut) throws SQLException {
+    String sql = "SELECT * FROM maintenance WHERE dateDebut = ?";
+    List<Map<String, Object>> maintenances = new ArrayList<>();
+
+    try (Connection conn = DBUtil.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+        stmt.setDate(1, new java.sql.Date(dateDebut.getTime()));
+
+        try (ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                Map<String, Object> maint = new HashMap<>();
+                maint.put("idMaint", rs.getInt("idMaint"));
+                maint.put("idAffect", rs.getInt("idAffect"));
+                maint.put("idEquip", rs.getString("idEquip"));
+                maint.put("dateDebut", rs.getDate("dateDebut"));
+                maint.put("dateFin", rs.getDate("dateFin"));
+                maint.put("typeMaint", rs.getString("typeMaint"));
+                maint.put("resultat", rs.getString("resultat"));
+                maint.put("cout", rs.getDouble("cout"));
+                maintenances.add(maint);
+            }
+        }
+    }
+
+    return maintenances;
+}
+    
+    public static List<Map<String, Object>> getLast4MaintenancesByDateDebut() throws SQLException {
+    String sql = "SELECT * FROM maintenance ORDER BY dateDebut DESC LIMIT 3";
+    
+    List<Map<String, Object>> maintenances = new ArrayList<>();
+
+    try (Connection conn = DBUtil.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql);
+         ResultSet rs = stmt.executeQuery()) {
+
+        while (rs.next()) {
+            Map<String, Object> maint = new HashMap<>();
+            maint.put("idMaint", rs.getInt("idMaint"));
+            maint.put("idEquip", rs.getString("idEquip"));
+            maint.put("dateDebut", rs.getDate("dateDebut"));
+            maint.put("dateFin", rs.getDate("dateFin"));
+            maint.put("typeMaint", rs.getString("typeMaint"));
+            maint.put("resultat", rs.getString("resultat"));
+            maint.put("cout", rs.getDouble("cout"));
+            maintenances.add(maint);
+        }
+    }
+
+    return maintenances;
+}
+
+    
     public static void updateMaintenance(int idMaint, int idAffect, String idEquip, Date dateDebut, 
                                        Date dateFin, String typeMaint, String resultat, 
                                        double cout) throws SQLException {

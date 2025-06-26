@@ -5,13 +5,20 @@
 package admin;
 
 import admin.Dao.AdminDAO;
+import admin.Dao.AffectDAO;
+import admin.Dao.DemandeDAO;
 import admin.Dao.DeptDAO;
+import admin.Dao.EmployeDAO;
 import admin.Dao.EquipementDAO;
+import admin.Dao.MaintenanceDAO;
+import admin.Dao.TechnicienDAO;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
@@ -20,6 +27,7 @@ import javax.swing.JOptionPane;
  * @author Admin
  */
 public class dashbord extends javax.swing.JFrame {
+
 
     /**
      * Creates new form dashbord
@@ -61,14 +69,150 @@ System.out.println(data1);
                 for (Map.Entry<String, Integer> entry : stats.entrySet()) {
                     String etat = entry.getKey();
                     int count = entry.getValue();
-                    jTextPane4.setText("État: " + etat + " → Nombre: " + count);
+                    if ("neuf".equals(etat)){
+                        jTextPane4.setText("État: " + etat + " → Nombre: " + count);
+                    }
+                    if ("mauvais".equals(etat)){
+                        jTextPane5.setText("État: " + etat + " → Nombre: " + count);
+                    }
+                     if ("moyen".equals(etat)){
+                        jTextPane6.setText("État: " + etat + " → Nombre: " + count);
+                    }
                 }
             }
 
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Database error: " + e.getMessage());
         }
+        //the demande list ;
+        try {
+        // 1. Get all demandes en attente
+        List<Map<String, Object>> demandes = DemandeDAO.getDemandesEnAttente();
+        List<String> affichage = new ArrayList<>();
 
+        // 2. Loop through each demande
+        for (Map<String, Object> demande : demandes) {
+            int idEmp = (int) demande.get("idEmp");
+            String nomEmp = EmployeDAO.EmployeDAONomById(idEmp);
+
+            String titre = (String) demande.get("title");
+            Date date = (Date) demande.get("dateDem");
+
+            // 3. Format display line
+            String line = titre + " | " + nomEmp + " | " + date.toString();
+            affichage.add(line);
+        }
+
+        // 4. Display list in JList
+        jList1.setListData(affichage.toArray(new String[0]));
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Erreur lors du chargement des demandes en attente");
+    }
+        
+        //the maintenance list ;
+
+    try {
+        List<Map<String, Object>> maints = MaintenanceDAO.getLast4MaintenancesByDateDebut();
+         List<String> affichage = new ArrayList<>();
+        for (Map<String, Object> m : maints) {
+            Date dateDeb = (Date) m.get("dateDebut");
+            String equip = (String) m.get("idEquip");
+            String type = (String) m.get("typeMaint");
+            int id = (int) m.get("idMaint");
+             String status = AffectDAO.getAffectByIdMaint(id);
+            
+           
+           String affectInfo = AffectDAO.getAffectByIdMaint(id);
+
+// Try to extract the employee ID from the string
+String idEmp = "Inconnu";
+String namemp = "Inconnu";
+int idemp = 0  ;
+if (affectInfo.contains("Employé:")) {
+    try {
+        String[] parts = affectInfo.split("\\|");
+        for (String part : parts) {
+            part = part.trim();
+            if (part.startsWith("Employé:")) {
+                idEmp = part.replace("Employé:", "").trim();
+                idemp =Integer.parseInt(idEmp);
+                break;       
+            }
+          
+        }
+        Map<String, Object> emp = EmployeDAO.getEmployeById(idemp);
+            namemp = (String) emp.get("username");
+System.out.println("ID Employé extrait: " + idEmp);
+  } catch (SQLException e) {
+        e.printStackTrace();
+    }
+        // Try to extract the technicien ID from the string
+String idtech = "Inconnu";
+String nametech = "Inconnu";
+int idtech2 = 0;
+
+if (affectInfo.contains("Technicien:")) {
+    try {
+        String[] parts2 = affectInfo.split("\\|");
+        for (String part : parts2) {
+            part = part.trim();
+            if (part.startsWith("Technicien:")) { // Case-sensitive fix
+                idtech = part.replace("Technicien:", "").trim();
+
+                // Try parsing the tech ID
+                try {
+                    idtech2 = Integer.parseInt(idtech);
+                } catch (NumberFormatException e) {
+                    idtech2 = 0; // fallback if not numeric
+                }
+
+                break;
+            }
+        }
+
+        if (idtech2 != 0) {
+            Map<String, Object> tech = TechnicienDAO.getTechnicienById(idtech2);
+            if (tech != null && tech.get("username") != null) {
+                nametech = (String) tech.get("username");
+            }
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    
+    String stat = "Inconnu";
+
+if (affectInfo.contains("Statut:")) {
+    try {
+        String[] parts = affectInfo.split("\\|");
+        for (String part : parts) {
+            part = part.trim();
+            if (part.startsWith("Statut:")) {  // Case-sensitive
+                stat = part.replace("Statut:", "").trim();
+                break;
+            }
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    affichage.add("Equip: " + equip + " | Type: " + type + " | Début: " + dateDeb.toString()+" | Status :"+stat + " | Employe :"+namemp+"| Technicien :"+ nametech);
+}
+
+}
+
+System.out.println("ID tech extrait: " + nametech);
+        }
+        jList2.setListData(affichage.toArray(new String[0]));
+  
+
+        }
+  } catch (SQLException ex) {
+            Logger.getLogger(dashbord.class.getName()).log(Level.SEVERE, null, ex);
+    
+    }
 }
 
 
@@ -265,8 +409,8 @@ System.out.println(data1);
                 .addContainerGap()
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane7, javax.swing.GroupLayout.DEFAULT_SIZE, 295, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jLabel2.setText("Maintenance en attende");
@@ -285,9 +429,11 @@ System.out.println(data1);
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jScrollPane8, javax.swing.GroupLayout.PREFERRED_SIZE, 264, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(14, Short.MAX_VALUE))
+                    .addGroup(jPanel5Layout.createSequentialGroup()
+                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(jScrollPane8))
+                .addContainerGap())
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -315,24 +461,18 @@ System.out.println(data1);
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(90, 90, 90))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(6, 6, 6)
-                                .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addGap(18, 18, 18)))
+                        .addGap(6, 6, 6)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 0, Short.MAX_VALUE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addGap(0, 0, Short.MAX_VALUE)
-                                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(jButton6)))
+                        .addComponent(jButton6))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(121, 121, 121)
+                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -345,10 +485,10 @@ System.out.println(data1);
                     .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 36, Short.MAX_VALUE)
+                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 22, Short.MAX_VALUE)
                 .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -356,6 +496,7 @@ System.out.println(data1);
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+        
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
         ListEquip EQ = new ListEquip ();

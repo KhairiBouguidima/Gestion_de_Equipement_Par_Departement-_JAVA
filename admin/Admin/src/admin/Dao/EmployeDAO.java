@@ -49,6 +49,22 @@ public class EmployeDAO {
         return null;
     }
     
+    public static String EmployeDAONomById(int id) throws SQLException {
+    String sql = "SELECT * FROM employe WHERE id = ?";
+    try (Connection conn = DBUtil.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+        stmt.setInt(1, id);
+        try (ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                String name = rs.getString("username");
+                return name ;
+            }
+        }
+    }
+    return null;
+}
+
+    
     public static void updateEmploye(int id, String username, int idLabo, Integer idAdmin, String email) throws SQLException {
         String sql = "UPDATE employe SET username = ?, idLabo = ?, idAdmin = ?, email = ? WHERE id = ?";
         try (Connection conn = DBUtil.getConnection();

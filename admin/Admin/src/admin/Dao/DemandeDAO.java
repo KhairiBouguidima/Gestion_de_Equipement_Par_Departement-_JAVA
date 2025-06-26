@@ -64,6 +64,35 @@ public class DemandeDAO {
         return null;
     }
     
+    // Get all demandes with status = 'en attente'
+public static List<Map<String, Object>> getDemandesEnAttente() throws SQLException {
+    String sql = "SELECT * FROM demande WHERE statut = 'en attente'";
+    List<Map<String, Object>> demandes = new ArrayList<>();
+
+    try (Connection conn = DBUtil.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql);
+         ResultSet rs = stmt.executeQuery()) {
+
+        while (rs.next()) {
+            Map<String, Object> demande = new HashMap<>();
+            demande.put("idDem", rs.getInt("idDem"));
+            demande.put("title", rs.getString("title"));
+            demande.put("desc", rs.getString("desc"));
+            demande.put("idEmp", rs.getInt("idEmp"));
+            demande.put("idEquip", rs.getString("idEquip"));
+            demande.put("idLabo", rs.getInt("idLabo"));
+            demande.put("dateDem", rs.getDate("dateDem"));
+            demande.put("typeDem", rs.getString("typeDem"));
+            demande.put("urgence", rs.getString("urgence"));
+            demande.put("statut", rs.getString("statut"));
+            demandes.add(demande);
+        }
+    }
+
+    return demandes;
+}
+
+
     public static Map<String, Object> getDemandeBystatus(String status) throws SQLException {
         String sql = "SELECT * FROM demande WHERE idDem = ?";
         try (Connection conn = DBUtil.getConnection();
