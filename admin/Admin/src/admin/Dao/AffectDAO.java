@@ -84,7 +84,6 @@ public static String getAffectByIdMaint(int idMaint) throws SQLException {
     return "Affectation introuvable pour maintenance ID: " + idMaint;
 }
 
-
     
     public static void updateAffect(int idAffect, int idEmp, int idAdmin, String status, Integer idTech) throws SQLException {
         String sql = "UPDATE affect SET idEmp = ?, idAdmin = ?, status = ?, idTech = ? WHERE idAffect = ?";
@@ -126,6 +125,27 @@ public static String getAffectByIdMaint(int idMaint) throws SQLException {
                 affect.put("idAdmin", rs.getInt("idAdmin"));
                 affect.put("status", rs.getString("status"));
                 affect.put("idTech", rs.getObject("idTech"));
+                affects.add(affect);
+            }
+            return affects;
+        }
+    }
+     public static List<Map<String, Object>> getAllAffectsbyiddem() throws SQLException {
+        String sql = " select * from affect  where idDemande >= 1 and status ='en cours'";
+        try (Connection conn = DBUtil.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            
+            List<Map<String, Object>> affects = new ArrayList<>();
+            while (rs.next()) {
+                Map<String, Object> affect = new HashMap<>();
+                affect.put("idAffect", rs.getInt("idAffect"));
+                affect.put("idEmp", rs.getInt("idEmp"));
+                affect.put("idAdmin", rs.getInt("idAdmin"));
+                affect.put("status", rs.getString("status"));
+                affect.put("idTech", rs.getObject("idTech"));
+                affect.put("idTech", rs.getInt("idDemande"));
+                affect.put("idTech", rs.getInt("idMaint"));
                 affects.add(affect);
             }
             return affects;

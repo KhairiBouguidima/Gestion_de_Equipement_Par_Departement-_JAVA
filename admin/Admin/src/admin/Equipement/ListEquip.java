@@ -2,19 +2,54 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package admin;
+package admin.Equipement;
+
+import admin.Dao.EquipementDAO;
+import admin.dashbord;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
  * @author Admin
  */
-public class ListMaint extends javax.swing.JFrame {
+public class ListEquip extends javax.swing.JFrame {
 
     /**
      * Creates new form ListEquip
      */
-    public ListMaint() {
+    public ListEquip() throws SQLException {
         initComponents();
+        
+         jTable1.setModel(new javax.swing.table.DefaultTableModel(new Object [][]{},new String []{"numero_serie","model","marque","description","dateAcqui","dateFinGarantie","etat","name Emp"}));
+        
+         
+       List<Map<String, Object>> rowData = EquipementDAO.getAllEquipements();
+DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+
+// Optional: clear the table before filling it
+model.setRowCount(0);
+
+// Loop through the data and add each row
+for (Map<String, Object> row : rowData) {
+    // Example: get values from the map using column names
+    Object id = row.get("numero_serie");
+    Object name = row.get("model");
+    Object type = row.get("marque");
+    Object desc = row.get("descriptiont");   
+    Object dateaqui = row.get("dateAcqui");
+    Object datefin = row.get("dateFinGarantie");
+    Object etat = row.get("etat");
+    Object idemp = row.get("idEmp");
+
+    // Add them as a new row
+    model.addRow(new Object[] { id, name, type, desc,dateaqui,datefin,etat,idemp });
+}
     }
 
     /**
@@ -59,6 +94,11 @@ public class ListMaint extends javax.swing.JFrame {
         jScrollPane1.setViewportView(jTable1);
 
         jButton2.setText("Add");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         jButton3.setText("Modefier");
 
@@ -117,6 +157,12 @@ public class ListMaint extends javax.swing.JFrame {
         db.setVisible(true);        // TODO add your handling code here:
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+       Addequip add = new Addequip();
+       add.setVisible(true);
+    }//GEN-LAST:event_jButton2ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -134,21 +180,22 @@ public class ListMaint extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(ListMaint.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ListEquip.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(ListMaint.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ListEquip.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(ListMaint.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ListEquip.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(ListMaint.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ListEquip.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new ListMaint().setVisible(true);
+        java.awt.EventQueue.invokeLater(() -> {
+            try {
+                new ListEquip().setVisible(true);
+            } catch (SQLException ex) {
+                Logger.getLogger(ListEquip.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
     }

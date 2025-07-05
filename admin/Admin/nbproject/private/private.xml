@@ -3,12 +3,8 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/Admin/javaproj/Gestion_de_Equipement_Par_Departement-_JAVA/admin/Admin/src/admin/ListMaint.java</file>
-            <file>file:/C:/Users/Admin/javaproj/Gestion_de_Equipement_Par_Departement-_JAVA/admin/Admin/src/admin/Dao/AdminDAO.java</file>
-            <file>file:/C:/Users/Admin/javaproj/Gestion_de_Equipement_Par_Departement-_JAVA/admin/Admin/src/admin/dashbord.java</file>
-            <file>file:/C:/Users/Admin/javaproj/Gestion_de_Equipement_Par_Departement-_JAVA/admin/Admin/src/admin/connection.java</file>
-            <file>file:/C:/Users/Admin/javaproj/Gestion_de_Equipement_Par_Departement-_JAVA/admin/Admin/src/admin/Dao/DeptDAO.java</file>
-            <file>file:/C:/Users/Admin/javaproj/Gestion_de_Equipement_Par_Departement-_JAVA/admin/Admin/src/admin/Dao/EquipementDAO.java</file>
+            <file>file:/C:/Users/Admin/javaproj/Gestion_de_Equipement_Par_Departement-_JAVA/admin/Admin/src/admin/Equipement/Addequip.java</file>
+            <file>file:/C:/Users/Admin/javaproj/Gestion_de_Equipement_Par_Departement-_JAVA/admin/Admin/src/admin/Equipement/ListEquip.java</file>
         </group>
     </open-files>
 </project-private>
